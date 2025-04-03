@@ -56,10 +56,15 @@ class RAGProcurementRisksAnalysis:
             for file_path in files:
                 try:
                     if file_path.endswith(".csv"):
-                        with open(file_path, "r", encoding="utf-8") as f:
-                            content = f.read()
+                        try:
+                            with open(file_path, "r", encoding="utf-8") as f:
+                                content = f.read()
+                        except UnicodeDecodeError:
+                            with open(file_path, "r", encoding="latin1") as f:
+                                content = f.read()
                         doc = LCDocument(page_content=content)
                         all_documents.append(doc)
+
                     else:
                         loader = UnstructuredLoader(file_path=file_path)
                         documents = loader.load()
