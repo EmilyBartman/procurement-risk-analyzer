@@ -173,8 +173,8 @@ class RAGProcurementRisksAnalysis:
 
 
 # STEP 5: Preview Function
-def preview_file(file, file_type):
-    st.subheader(f"Preview: {file.name}")
+def preview_file(file, file_type, name="Uploaded file"):
+    st.subheader(f"Preview: {name}")
     if file_type == "csv":
         df = pd.read_csv(file)
         st.dataframe(df.head())
@@ -242,20 +242,22 @@ if historical_files:
         bytes_data = f.getvalue()
         file_ext = f.name.split(".")[-1]
         st.text(f"🧪 Uploaded historical file: {f.name}, size: {len(bytes_data)} bytes")
-        preview_file(io.BytesIO(bytes_data), file_ext)
+        preview_file(io.BytesIO(bytes_data), file_ext, name=f.name)
         historical_file_bytes.append((f.name, bytes_data))
 
 if risks_file:
     risks_bytes = risks_file.getvalue()
     file_ext = risks_file.name.split(".")[-1]
     st.text(f"🧪 Uploaded risks file: {risks_file.name}, size: {len(risks_bytes)} bytes")
-    preview_file(io.BytesIO(risks_bytes), file_ext)
+    preview_file(io.BytesIO(bytes_data), file_ext, name=f.name)
+
 
 if target_file:
     target_bytes = target_file.getvalue()
     file_ext = target_file.name.split(".")[-1]
     st.text(f"🧪 Uploaded target file: {target_file.name}, size: {len(target_bytes)} bytes")
-    preview_file(io.BytesIO(target_bytes), file_ext)
+    preview_file(io.BytesIO(bytes_data), file_ext, name=f.name)
+
 
 
 if st.button("Run Analysis"):
