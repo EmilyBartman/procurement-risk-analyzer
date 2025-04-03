@@ -161,13 +161,14 @@ This tool uses LLM-based Retrieval-Augmented Generation (RAG) to assess risks in
 with st.expander("📁 Download Example Templates", expanded=True):
     col1, col2, col3 = st.columns(3)
     with col1:
-        with open("../example_files//dataset1.csv", "rb") as f:
+        EXAMPLES_PATH = Path(__file__).resolve().parent.parent / "example_files"
+        with open(EXAMPLES_PATH / "dataset1.csv", "rb") as f:
             st.download_button("⬇️ History Doc.csv", f, file_name="dataset1.csv", help="Historical doc example")
     with col2:
-        with open("../example_files//risks.csv", "rb") as f:
+        with open(EXAMPLES_PATH / "risks.csv", "rb") as f:
             st.download_button("⬇️ Risks Doc.csv", f, file_name="risks.csv", help="Risk types to reference")
     with col3:
-        with open("../example_files//dataset_no_risks.csv", "rb") as f:
+        with open(EXAMPLES_PATH / "dataset_no_risks.csv", "rb") as f:
             st.download_button("⬇️ Target Doc.csv", f, file_name="dataset_no_risks.csv", help="Target doc example")
 
 st.markdown("### Step 1: Upload Your Files")
