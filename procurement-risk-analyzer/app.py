@@ -193,18 +193,6 @@ def preview_file(file, file_type, name="Uploaded file"):
 # STEP 6: Streamlit UI Setup
 st.set_page_config(page_title="Procurement Risk Analyzer", layout="centered")
 
-GA_TAG = "G-T1E091YHSZ"
-
-components.html(f"""
-<script async src="https://www.googletagmanager.com/gtag/js?id={GA_TAG}"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){{ dataLayer.push(arguments); }}
-  gtag('js', new Date());
-  gtag('config', '{GA_TAG}');
-</script>
-""", height=0)
-
 st.title("📄 Procurement Risk Analyzer")
 
 st.sidebar.title("ℹ️ About")
