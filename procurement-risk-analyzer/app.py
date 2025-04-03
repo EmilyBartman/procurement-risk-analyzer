@@ -239,7 +239,10 @@ if historical_files:
     for f in historical_files:
         preview_file(f, f.name.split(".")[-1])
 if risks_file:
-    preview_file(risks_file, risks_file.name.split(".")[-1])
+    file_ext = risks_file.name.split(".")[-1]
+    st.text(f"🧪 Uploaded risks file: {risks_file.name}, size: {risks_file.size} bytes, type: {file_ext}")
+    preview_file(risks_file, file_ext)
+
 if target_file:
     preview_file(target_file, target_file.name.split(".")[-1])
 
@@ -254,8 +257,12 @@ if st.button("Run Analysis"):
             for f in historical_files:
                 with open(base_dir / "historical_documents" / f.name, "wb") as out:
                     out.write(f.read())
-            with open(base_dir / "risks_document" / risks_file.name, "wb") as out:
-                out.write(risks_file.read())
+            risks_path = base_dir / "risks_document" / risks_file.name
+            risks_bytes = risks_file.read()
+            st.text(f"💾 Saving risks file to: {risks_path}, bytes: {len(risks_bytes)}")
+            with open(risks_path, "wb") as out:
+                out.write(risks_bytes)
+
             with open(base_dir / "target_document" / target_file.name, "wb") as out:
                 out.write(target_file.read())
 
@@ -267,6 +274,10 @@ if st.button("Run Analysis"):
                 target_document_folder_path=base_dir / "target_document",
                 risk_analysis_output_path=base_dir / "outputs"
             )
+            st.text(f"📄 Loaded {len(rag.risks_document)} risks doc(s)")
+            if rag.risks_document:
+                st.text(f"🔎 Risks doc preview:\n{rag.risks_document[0].page_content[:300]}")
+
 
             if not rag.historical_documents:
                 st.error("❌ Could not load any content from historical documents.")
