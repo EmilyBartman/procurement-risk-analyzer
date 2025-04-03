@@ -84,12 +84,18 @@ class RAGProcurementRisksAnalysis:
         query_embedding = embeddings.embed_query(self.query)
         risks_document_embedding = embeddings.embed_query(self.risks_document[0].page_content)
         target_document_embedding = embeddings.embed_query(self.target_document[0].page_content)
-
+    
         retrieved_by_query = vector_store.similarity_search_by_vector(query_embedding, k=3)
         retrieved_by_risks = vector_store.similarity_search_by_vector(risks_document_embedding, k=3)
         retrieved_by_target = vector_store.similarity_search_by_vector(target_document_embedding, k=3)
-
+    
         retrieved_documents = list({doc.page_content: doc for doc in retrieved_by_query + retrieved_by_target + retrieved_by_risks}.values())
+
+        if not retrieved_documents:
+            print("⚠️ No documents retrieved during semantic search!")
+    
+        print(f"🔍 Retrieved {len(retrieved_documents)} relevant docs for semantic search.")
+    
         return "\n\n".join([f"Document {i + 1}: {doc.page_content}" for i, doc in enumerate(retrieved_documents)])
 
     def save_risk_analysis_to_file(self, risk_analysis):
@@ -100,39 +106,63 @@ class RAGProcurementRisksAnalysis:
 
     def generate_risks_analysis_rag(self):
         llm = ChatOpenAI(model="gpt-4o", temperature=0.5, openai_api_key=self.api_key)
+    
+        retrieved_docs_str = self.semantic_search()
+        risks_content = self.risks_document[0].page_content
+        target_content = self.target_document[0].page_content
+    
+        # Add fallback for empty inputs
+        if not retrieved_docs_str.strip():
+            retrieved_docs_str = "No relevant documents were retrieved. Please proceed with only risks and target documents."
+        if not risks_content.strip() or not target_content.strip():
+            raise ValueError("One or more documents are empty. Cannot proceed with risk analysis.")
+    
+        # Debug logs
+        print("----- Prompt Preview -----")
+        print("Query:", self.query)
+        print("--- Retrieved Docs ---")
+        print(retrieved_docs_str[:500])
+        print("--- Risks Document ---")
+        print(risks_content[:500])
+        print("--- Target Document ---")
+        print(target_content[:500])
+    
         prompt_template = PromptTemplate(
             input_variables=["retrieved_docs_str", "risks_document_content", "target_document_content"],
             template='''You are a procurement risk assessment AI. Evaluate the risks associated with the target document
-based on the retrieved knowledge and the risks detailed in the risks document.
-
-### Target Document:
-{target_document_content}
-
-### Risks Document:
-{risks_document_content}
-
-### Retrieved Risk-Related Documents:
-{retrieved_docs_str}
-
-### Task:
-Analyze the target document and classify risks into the categories detailed in the risks document.
-
-Output the risk labels and a short explanation for each.
-
-Risk Assessment:
-
-Based on the risks document summarize a mitigation plan.
-
-Mitigation Plan:''')
-
+    based on the retrieved knowledge and the risks detailed in the risks document.
+    
+    ### Target Document:
+    {target_document_content}
+    
+    ### Risks Document:
+    {risks_document_content}
+    
+    ### Retrieved Risk-Related Documents:
+    {retrieved_docs_str}
+    
+    ### Task:
+    Analyze the target document and classify risks into the categories detailed in the risks document.
+    
+    Output the risk labels and a short explanation for each.
+    
+    Risk Assessment:
+    
+    Based on the risks document summarize a mitigation plan.
+    
+    Mitigation Plan:'''
+        )
+    
         chain = LLMChain(llm=llm, prompt=prompt_template)
         risk_analysis = chain.run({
-            "retrieved_docs_str": self.semantic_search(),
-            "risks_document_content": self.risks_document[0].page_content,
-            "target_document_content": self.target_document[0].page_content
+            "retrieved_docs_str": retrieved_docs_str,
+            "risks_document_content": risks_content,
+            "target_document_content": target_content
         })
+    
         self.save_risk_analysis_to_file(risk_analysis)
         return risk_analysis
+
 
 # STEP 5: Preview Function
 def preview_file(file, file_type):
@@ -242,7 +272,14 @@ if st.button("Run Analysis"):
                 st.success("✅ Analysis complete!")
 
                 st.download_button("📥 Download Result", result, file_name="risk_analysis.txt")
-
+                # Show debug preview
+                with st.expander("🔍 Debug: Prompt Inputs", expanded=False):
+                    st.markdown("#### Retrieved Documents")
+                    st.text(rag.semantic_search()[:2000])
+                    st.markdown("#### Risks Document")
+                    st.text(rag.risks_document[0].page_content[:2000])
+                    st.markdown("#### Target Document")
+                    st.text(rag.target_document[0].page_content[:2000])
                 if "Mitigation Plan:" in result:
                     risk_section, mitigation_section = result.split("Mitigation Plan:", 1)
                 else:
