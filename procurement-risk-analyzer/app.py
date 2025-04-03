@@ -30,21 +30,6 @@ import shutil
 import streamlit as st
 import streamlit.components.v1 as components
 
-# ✅ MUST BE FIRST STREAMLIT COMMAND
-st.set_page_config(page_title="Procurement Risk Analyzer", layout="centered")
-
-# 🔽 Inject Google Analytics (optional)
-components.html("""
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-T1E091YHSZ"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-  gtag('config', 'G-T1E091YHSZ');
-</script>
-""", height=0)
-
 
 warnings.filterwarnings("ignore", category=DeprecationWarning)
 warnings.filterwarnings("ignore", category=pd.errors.ParserWarning)
@@ -208,6 +193,20 @@ def preview_file(file, file_type, name="Uploaded file"):
 # STEP 6: Streamlit UI Setup
 st.set_page_config(page_title="Procurement Risk Analyzer", layout="centered")
 st.title("📄 Procurement Risk Analyzer")
+
+# 🔽 Inject Google Analytics (optional)
+components.html("""
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-T1E091YHSZ"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-T1E091YHSZ');
+</script>
+""", height=0)
+
+
 
 st.sidebar.title("ℹ️ About")
 st.sidebar.info('''
