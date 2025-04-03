@@ -11,6 +11,7 @@ Original file is located at
 
 # STEP 1: Import Required Libraries
 import os
+import io
 import glob
 from pathlib import Path
 import pandas as pd
@@ -235,16 +236,27 @@ target_file = st.file_uploader(
     help="🎯 The target document is the procurement form or data you'd like to analyze. It should contain project variables, dates, and dependencies.\n\nExample: Target Doc.csv"
 )
 
+historical_file_bytes = []
 if historical_files:
     for f in historical_files:
-        preview_file(f, f.name.split(".")[-1])
+        bytes_data = f.getvalue()
+        file_ext = f.name.split(".")[-1]
+        st.text(f"🧪 Uploaded historical file: {f.name}, size: {len(bytes_data)} bytes")
+        preview_file(io.BytesIO(bytes_data), file_ext)
+        historical_file_bytes.append((f.name, bytes_data))
+
 if risks_file:
+    risks_bytes = risks_file.getvalue()
     file_ext = risks_file.name.split(".")[-1]
-    st.text(f"🧪 Uploaded risks file: {risks_file.name}, size: {risks_file.size} bytes, type: {file_ext}")
-    preview_file(risks_file, file_ext)
+    st.text(f"🧪 Uploaded risks file: {risks_file.name}, size: {len(risks_bytes)} bytes")
+    preview_file(io.BytesIO(risks_bytes), file_ext)
 
 if target_file:
-    preview_file(target_file, target_file.name.split(".")[-1])
+    target_bytes = target_file.getvalue()
+    file_ext = target_file.name.split(".")[-1]
+    st.text(f"🧪 Uploaded target file: {target_file.name}, size: {len(target_bytes)} bytes")
+    preview_file(io.BytesIO(target_bytes), file_ext)
+
 
 if st.button("Run Analysis"):
     if not IFI_API_KEY:
@@ -254,17 +266,18 @@ if st.button("Run Analysis"):
     else:
         with st.spinner("Processing files and analyzing..."):
             base_dir = Path(".")
-            for f in historical_files:
-                with open(base_dir / "historical_documents" / f.name, "wb") as out:
-                    out.write(f.read())
-            risks_path = base_dir / "risks_document" / risks_file.name
-            risks_bytes = risks_file.read()
-            st.text(f"💾 Saving risks file to: {risks_path}, bytes: {len(risks_bytes)}")
-            with open(risks_path, "wb") as out:
-                out.write(risks_bytes)
+            for fname, fbytes in historical_file_bytes:
+                with open(base_dir / "historical_documents" / fname, "wb") as out:
+                    out.write(fbytes)
 
-            with open(base_dir / "target_document" / target_file.name, "wb") as out:
-                out.write(target_file.read())
+            risks_path = base_dir / "risks_document" / risks_file.name
+                with open(risks_path, "wb") as out:
+                    out.write(risks_bytes)
+
+
+                with open(base_dir / "target_document" / target_file.name, "wb") as out:
+                    out.write(target_bytes)
+
 
             rag = RAGProcurementRisksAnalysis(
                 api_key=IFI_API_KEY,
