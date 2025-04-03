@@ -27,9 +27,13 @@ from PyPDF2 import PdfReader
 from docx import Document
 import warnings
 import shutil
+import streamlit as st
 import streamlit.components.v1 as components
 
-# Inject Google Analytics
+# ✅ MUST BE FIRST STREAMLIT COMMAND
+st.set_page_config(page_title="Procurement Risk Analyzer", layout="centered")
+
+# 🔽 Inject Google Analytics (optional)
 components.html("""
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-T1E091YHSZ"></script>
@@ -40,6 +44,7 @@ components.html("""
   gtag('config', 'G-T1E091YHSZ');
 </script>
 """, height=0)
+
 
 warnings.filterwarnings("ignore", category=DeprecationWarning)
 warnings.filterwarnings("ignore", category=pd.errors.ParserWarning)
