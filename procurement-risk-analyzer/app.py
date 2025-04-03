@@ -266,19 +266,23 @@ if st.button("Run Analysis"):
     else:
         with st.spinner("Processing files and analyzing..."):
             base_dir = Path(".")
+
+            # Save historical files
             for fname, fbytes in historical_file_bytes:
                 with open(base_dir / "historical_documents" / fname, "wb") as out:
                     out.write(fbytes)
 
+            # Save risks file
             risks_path = base_dir / "risks_document" / risks_file.name
-                with open(risks_path, "wb") as out:
-                    out.write(risks_bytes)
+            with open(risks_path, "wb") as out:
+                out.write(risks_bytes)
 
+            # Save target file
+            target_path = base_dir / "target_document" / target_file.name
+            with open(target_path, "wb") as out:
+                out.write(target_bytes)
 
-                with open(base_dir / "target_document" / target_file.name, "wb") as out:
-                    out.write(target_bytes)
-
-
+            # Run RAG analysis
             rag = RAGProcurementRisksAnalysis(
                 api_key=IFI_API_KEY,
                 query=query,
@@ -287,10 +291,10 @@ if st.button("Run Analysis"):
                 target_document_folder_path=base_dir / "target_document",
                 risk_analysis_output_path=base_dir / "outputs"
             )
+
             st.text(f"📄 Loaded {len(rag.risks_document)} risks doc(s)")
             if rag.risks_document:
                 st.text(f"🔎 Risks doc preview:\n{rag.risks_document[0].page_content[:300]}")
-
 
             if not rag.historical_documents:
                 st.error("❌ Could not load any content from historical documents.")
@@ -303,14 +307,7 @@ if st.button("Run Analysis"):
                 st.success("✅ Analysis complete!")
 
                 st.download_button("📥 Download Result", result, file_name="risk_analysis.txt")
-                # Show debug preview
-                with st.expander("🔍 Debug: Prompt Inputs", expanded=False):
-                    st.markdown("#### Retrieved Documents")
-                    st.text(rag.semantic_search()[:2000])
-                    st.markdown("#### Risks Document")
-                    st.text(rag.risks_document[0].page_content[:2000])
-                    st.markdown("#### Target Document")
-                    st.text(rag.target_document[0].page_content[:2000])
+
                 if "Mitigation Plan:" in result:
                     risk_section, mitigation_section = result.split("Mitigation Plan:", 1)
                 else:
