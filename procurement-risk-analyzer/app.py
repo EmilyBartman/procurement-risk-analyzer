@@ -28,7 +28,6 @@ from docx import Document
 import warnings
 import shutil
 import streamlit as st
-from streamlit_analytics import streamlit_analytics
 import streamlit.components.v1 as components
 
 
@@ -196,11 +195,18 @@ st.set_page_config(page_title="Procurement Risk Analyzer", layout="centered")
 
 from streamlit_analytics import streamlit_analytics
 
-with streamlit_analytics(
-    ga4_gtag="G-T1E091YHSZ",  # Your GA tag
-    auto_track=True,
-    consent=False  # Set to True if you want a cookie banner
-):
+GA_TAG = "G-T1E091YHSZ"
+
+components.html(f"""
+<script async src="https://www.googletagmanager.com/gtag/js?id={GA_TAG}"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){{ dataLayer.push(arguments); }}
+  gtag('js', new Date());
+  gtag('config', '{GA_TAG}');
+</script>
+""", height=0)
+
     st.title("📄 Procurement Risk Analyzer")
     
     st.sidebar.title("ℹ️ About")
