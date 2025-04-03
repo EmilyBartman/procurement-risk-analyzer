@@ -1,5 +1,5 @@
 streamlit
-streamlit-analytics
+git+https://github.com/ChrisHayduk/streamlit-analytics.git
 langchain
 langchain-openai
 langchain-community
