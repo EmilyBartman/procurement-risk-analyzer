@@ -193,8 +193,6 @@ def preview_file(file, file_type, name="Uploaded file"):
 # STEP 6: Streamlit UI Setup
 st.set_page_config(page_title="Procurement Risk Analyzer", layout="centered")
 
-from streamlit_analytics import streamlit_analytics
-
 GA_TAG = "G-T1E091YHSZ"
 
 components.html(f"""
