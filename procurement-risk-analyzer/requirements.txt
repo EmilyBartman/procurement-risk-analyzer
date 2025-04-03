@@ -10,6 +10,3 @@ unstructured
 PyPDF2
 python-docx
 pandas
-
-# Put GitHub install last
-git+https://github.com/ChrisHayduk/streamlit-analytics.git
