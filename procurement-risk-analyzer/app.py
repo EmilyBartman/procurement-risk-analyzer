@@ -28,6 +28,7 @@ from docx import Document
 import warnings
 import shutil
 import streamlit as st
+import streamlit_analytics
 import streamlit.components.v1 as components
 
 
