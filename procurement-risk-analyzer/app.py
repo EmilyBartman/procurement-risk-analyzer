@@ -103,7 +103,7 @@ class RAGProcurementRisksAnalysis:
         os.makedirs(self.risk_analysis_output_path, exist_ok=True)
         with open(file_path, "w") as file:
             file.write(risk_analysis)
-
+    
     def generate_risks_analysis_rag(self):
         llm = ChatOpenAI(model="gpt-4o", temperature=0.5, openai_api_key=self.api_key)
     
@@ -114,8 +114,14 @@ class RAGProcurementRisksAnalysis:
         # Add fallback for empty inputs
         if not retrieved_docs_str.strip():
             retrieved_docs_str = "No relevant documents were retrieved. Please proceed with only risks and target documents."
-        if not risks_content.strip() or not target_content.strip():
-            raise ValueError("One or more documents are empty. Cannot proceed with risk analysis.")
+    
+        if not risks_content.strip():
+            st.error("❌ The risks document is empty. Please upload a valid file.")
+            return "Error: Risks document is empty."
+    
+        if not target_content.strip():
+            st.error("❌ The target document is empty. Please upload a valid file.")
+            return "Error: Target document is empty."
     
         # Debug logs
         print("----- Prompt Preview -----")
@@ -126,6 +132,7 @@ class RAGProcurementRisksAnalysis:
         print(risks_content[:500])
         print("--- Target Document ---")
         print(target_content[:500])
+
     
         prompt_template = PromptTemplate(
             input_variables=["retrieved_docs_str", "risks_document_content", "target_document_content"],
